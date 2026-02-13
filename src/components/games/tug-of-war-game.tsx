@@ -46,7 +46,7 @@ export function TugOfWarGame({ config, onPlayAgain }: TugOfWarGameProps) {
 
   // Track the time remaining at submission
   const timeRemainingRef = useRef(config.answerTime)
-  const resultTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const resultTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function generateNewProblem(): MathProblem {
     const problems = generateProblems({

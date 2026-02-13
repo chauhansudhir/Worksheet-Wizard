@@ -26,4 +26,6 @@ export const router = createBrowserRouter([
       { path: 'admin', element: <AdminPage /> },
     ],
   },
-])
+], {
+  basename: import.meta.env.BASE_URL.replace(/\/$/, ''),
+})
