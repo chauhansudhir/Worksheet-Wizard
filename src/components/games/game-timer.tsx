@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useState } from 'react'
 
 interface GameTimerProps {
   duration: number // seconds
@@ -8,8 +8,10 @@ interface GameTimerProps {
 
 export function GameTimer({ duration, running, onTimeout }: GameTimerProps) {
   const [remaining, setRemaining] = useState(duration)
-  const onTimeoutRef = useRef(onTimeout)
-  onTimeoutRef.current = onTimeout
+
+  const handleTimeout = useEffectEvent(() => {
+    onTimeout()
+  })
 
   useEffect(() => {
     setRemaining(duration)
@@ -19,7 +21,7 @@ export function GameTimer({ duration, running, onTimeout }: GameTimerProps) {
     if (!running) return
 
     const start = Date.now()
-    const end = start + remaining * 1000
+    const end = start + duration * 1000
 
     const interval = setInterval(() => {
       const now = Date.now()
@@ -28,12 +30,12 @@ export function GameTimer({ duration, running, onTimeout }: GameTimerProps) {
 
       if (left <= 0) {
         clearInterval(interval)
-        onTimeoutRef.current()
+        handleTimeout()
       }
     }, 50)
 
     return () => clearInterval(interval)
-  }, [running]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [running, duration])
 
   const radius = 40
   const circumference = 2 * Math.PI * radius

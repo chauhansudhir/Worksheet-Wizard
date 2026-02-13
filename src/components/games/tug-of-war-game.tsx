@@ -28,13 +28,23 @@ interface TugOfWarGameProps {
   onPlayAgain: () => void
 }
 
+function createProblem(config: GameConfig): MathProblem {
+  const problems = generateProblems({
+    operationType: config.operationType,
+    difficulty: config.difficulty,
+    maxDigits: config.maxDigits,
+    problemCount: 1,
+  })
+  return problems[0]!
+}
+
 export function TugOfWarGame({ config, onPlayAgain }: TugOfWarGameProps) {
   const [turnState, setTurnState] = useState<TurnState>('team1-turn')
   const [team1, setTeam1] = useState<TeamState>({ score: 0, streak: 0, lastPower: 0 })
   const [team2, setTeam2] = useState<TeamState>({ score: 0, streak: 0, lastPower: 0 })
   const [ropePosition, setRopePosition] = useState(0)
   const [round, setRound] = useState(1)
-  const [problem, setProblem] = useState<MathProblem>(() => generateNewProblem())
+  const [problem, setProblem] = useState<MathProblem>(() => createProblem(config))
   const [answer, setAnswer] = useState('')
   const [timerKey, setTimerKey] = useState(0)
   const [lastResult, setLastResult] = useState<{
@@ -47,16 +57,6 @@ export function TugOfWarGame({ config, onPlayAgain }: TugOfWarGameProps) {
   // Track the time remaining at submission
   const timeRemainingRef = useRef(config.answerTime)
   const resultTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  function generateNewProblem(): MathProblem {
-    const problems = generateProblems({
-      operationType: config.operationType,
-      difficulty: config.difficulty,
-      maxDigits: config.maxDigits,
-      problemCount: 1,
-    })
-    return problems[0]!
-  }
 
   const currentTeam: 1 | 2 = turnState === 'team1-turn' ? 1 : turnState === 'team2-turn' ? 2 : (lastResult?.team ?? 1)
 
@@ -115,13 +115,13 @@ export function TugOfWarGame({ config, onPlayAgain }: TugOfWarGameProps) {
         const nextRound = teamNum === 2 ? round + 1 : round // Increment round after team2's turn
         setRound(nextRound)
         setTurnState(nextTurn)
-        setProblem(generateNewProblem())
+        setProblem(createProblem(config))
         setAnswer('')
         setTimerKey((k) => k + 1)
         timeRemainingRef.current = config.answerTime
       }
     }, RESULT_DISPLAY_MS)
-  }, [problem, team1, team2, ropePosition, round, config]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [problem, team1, team2, ropePosition, round, config])
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -139,7 +139,7 @@ export function TugOfWarGame({ config, onPlayAgain }: TugOfWarGameProps) {
       timeRemainingRef.current = Math.max(0, config.answerTime - (Date.now() - start) / 1000)
     }, 50)
     return () => clearInterval(interval)
-  }, [turnState, timerKey])
+  }, [turnState, timerKey, config.answerTime])
 
   const handleSubmit = useCallback(() => {
     if (turnState !== 'team1-turn' && turnState !== 'team2-turn') return
