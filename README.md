@@ -1,6 +1,8 @@
-# React + TypeScript + Vite
+# Worksheet Wizard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A math practice app for kids built with React, TypeScript, and Vite.
+
+**Live Demo:** https://chauhansudhir.github.io/Worksheet-Wizard/
 
 Currently, two official plugins are available:
 
